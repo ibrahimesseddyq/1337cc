@@ -213,7 +213,7 @@ struct compile_process
     } cfile;
 
 };
-
+int parse(struct compile_process* process);
 char                compile_process_next_char(struct  lex_process* lex_process);
 char                compile_process_peek_char(struct  lex_process* lex_process);
 char                compile_process_push_char(struct  lex_process* lex_process, char c);

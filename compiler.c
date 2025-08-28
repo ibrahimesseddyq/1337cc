@@ -17,9 +17,15 @@ int compile_file(const char *filename, const char *out_filename, int flags)
     struct lex_process* lex_process = lex_process_create(process, &compiler_lex_functions, NULL);
     if (!lex_process)
         return COMPILER_FAILED_WITH_ERRORS;
+
     if (lex(lex_process) != LEXICAL_ANALYSIS_ALL_OK)
         return COMPILER_FAILED_WITH_ERRORS;
 
     process->token_vec = lex_process->token_vec;
+
+    if (parse(process) != PARSE_ALL_OK)
+    {
+        return  COMPILER_FAILED_WITH_ERRORS;
+    }
     return COMPILER_FILE_COMPLETED_OK;
 }
