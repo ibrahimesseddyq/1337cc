@@ -18,5 +18,8 @@ int compile_file(const char *filename, const char *out_filename, int flags)
     if (!lex_process)
         return COMPILER_FAILED_WITH_ERRORS;
     if (lex(lex_process) != LEXICAL_ANALYSIS_ALL_OK)
-     return COMPILER_FILE_COMPLETED_OK;
+        return COMPILER_FAILED_WITH_ERRORS;
+
+    process->token_vec = lex_process->token_vec;
+    return COMPILER_FILE_COMPLETED_OK;
 }
