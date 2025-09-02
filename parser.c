@@ -2,6 +2,14 @@
 #include "helpers/vector.h"
 
 static struct compile_process* current_process;
+static struct token* parser_last_token;
+static struct token* token_next()
+{
+    struct token* next_token = vector_peek_no_increment(current_process->token_vec);
+    parser_ignore_nl_or_comment(next_token);
+    current_process->pos = next_token->pos;
+    parser_last_token = next_token;
+}
 int parse_next()
 {
     return 0;
