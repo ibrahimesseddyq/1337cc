@@ -26,7 +26,7 @@ static char nextc()
     char c = lex_process->function->next_char(lex_process);
     if (lex_is_in_expression())
     {
-        buffer_write(lex_process->compiler, c)
+        buffer_write(lex_process->parentheses_buffer, c);
     }
     lex_process->pos.col += 1;
     if (c == '\n')
@@ -46,35 +46,7 @@ static char assert_next_char(char c)
     assert(c == next_c);
     return next_c;
 }
-// void compiler_node_error(struct node* node, const char* msg, ...)
-// {
-//     va_list args;
-//     va_start(args, msg);
-//     vfprintf(stderr, msg, args);
-//     va_end(args);
 
-//     fprintf(stderr, " on line %i, col %i in file %s\n", node->pos.line, node->pos.col, node->pos.filename);
-//     exit(-1);
-// }
-
-void compiler_error(struct compile_process* compiler, const char* msg, ...)
-{
-    va_list args;
-    va_start(args, msg);
-    vfprintf(stderr, msg, args);
-    va_end(args);
-    fprintf(stderr, " on line %i, col %i in file %s\n", compiler->pos.line, compiler->pos.col, compiler->pos.filename);
-    exit(-1);
-}
-
-void compiler_warning(struct compile_process* compiler, const char* msg, ...)
-{
-    va_list args;
-    va_start(args, msg);
-    vfprintf(stderr, msg, args);
-    va_end(args);
-    fprintf(stderr, " on line %i, col %i in file %s\n", compiler->pos.line, compiler->pos.col, compiler->pos.filename);
-}
 static struct pos lex_file_position()
 {
     return lex_process->pos;
@@ -118,20 +90,6 @@ static struct token* handle_whitespace()
     return read_next_token(); 
 }
 
-int lexer_number_type(char c)
-{
-    int res = NUMBER_TYPE_NORMAL;
-    if (c == 'L')
-    {
-        res = NUMBER_TYPE_LONG;
-    }
-    else if (c == 'f')
-    {
-        res = NUMBER_TYPE_FLOAT;
-    }
-
-    return res;
-}
 int lexer_number_type(char c)
 {
     int res = NUMBER_TYPE_NORMAL;
@@ -473,7 +431,7 @@ void lexer_validate_binary_string(const char * str)
     {
         if (str[i] != '0' && str[i] != '1')
         {
-            compiler_error(lex_process, "This is a valid binary number");
+            compiler_error(lex_process->compiler, "This is a valid binary number");
         }
     }
 }

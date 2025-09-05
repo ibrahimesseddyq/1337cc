@@ -79,13 +79,17 @@ typedef char (*LEX_PROCESS_NEXT_CHAR)(struct lex_process* process);
 typedef char (*LEX_PROCESS_PEEK_CHAR)(struct lex_process* process);
 typedef char (*LEX_PROCESS_PUSH_CHAR)(struct lex_process* process, char c);
 
-
-struct lex_process_function
+struct history
 {
-    LEX_PROCESS_NEXT_CHAR           next_char;
-    LEX_PROCESS_PEEK_CHAR           peek_char;
-    LEX_PROCESS_PUSH_CHAR           push_char;
+    int flags;
 };
+struct lex_process_functions
+{
+    LEX_PROCESS_NEXT_CHAR next_char;
+    LEX_PROCESS_PEEK_CHAR peek_char;
+    LEX_PROCESS_PUSH_CHAR push_char;
+};
+
 struct lex_process
 {
     struct pos                      pos;
@@ -94,7 +98,7 @@ struct lex_process
 
     int                             current_expression_count;// how many bracket 
     struct buffer*                  parentheses_buffer;
-    struct lex_process_function*    function;
+    struct lex_process_functions*    function;
 
     void*                           private;
 };
@@ -174,6 +178,10 @@ enum
     PARSE_ALL_OK,
     PARSE_GENERAL_ERROR
 };
+enum 
+{
+    NODE_FLAG_INSIDE_EXPRESSION = 0b00000001
+};
 struct node 
 {
     int type;
@@ -187,6 +195,15 @@ struct node
 
     } binded;
 
+    union 
+    {
+        struct exp 
+        {
+            struct node* left;
+            struct node* right;
+            const char * op;
+        } exp;
+    };
 
     union 
     {
@@ -213,11 +230,12 @@ struct compile_process
     } cfile;
 
 };
+
 int                 parse(struct compile_process* process);
 char                compile_process_next_char(struct  lex_process* lex_process);
 char                compile_process_peek_char(struct  lex_process* lex_process);
 char                compile_process_push_char(struct  lex_process* lex_process, char c);
-struct lex_process* lex_process_create(struct compile_process* compiler, struct lex_process_function functions, void *private);
+struct lex_process* lex_process_create(struct compile_process* compiler, struct lex_process_functions *functions, void *private);
 void                lex_process_free(struct lex_process* process);
 void                *lex_process_private(struct lex_process* process);
 void                *lex_process_tokens(struct lex_process* process);
@@ -237,4 +255,11 @@ struct node*        node_peek_or_null();
 void                node_push(struct node* node);
 void                node_set_vector(struct vector* vec, struct vector* root_vec);
 
+struct compile_process* compile_process_create(const char* filename, const char* filename_out, int flags);
+bool node_is_expressionable(struct node* node);
+struct node* node_peek_expressionable_or_null();
+int parse_expressionable_single(struct history* history);
+void parse_expressionable(struct history* history);
+void make_exp_node(struct node* left_node, struct node* right_node, const char *op);
+void parse_expressionable(struct history* history);
 #endif

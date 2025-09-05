@@ -1,12 +1,45 @@
 #include "compiler.h"
-
-struct lex_process_functions compiler_lex_functions =
-{
-    .next_char= compile_process_next_char,
-    .peek_char= compile_process_peek_char,
-    .push_char= compile_process_push_char
+#include <stdarg.h>
+#include <assert.h>
+#include "ctype.h" 
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+struct lex_process_functions compiler_lex_functions = {
+    .next_char=compile_process_next_char,
+    .peek_char=compile_process_peek_char,
+    .push_char=compile_process_push_char
 };
+// void compiler_node_error(struct node* node, const char* msg, ...)
+// {
+//     va_list args;
+//     va_start(args, msg);
+//     vfprintf(stderr, msg, args);
+//     va_end(args);
 
+//     fprintf(stderr, " on line %i, col %i in file %s\n", node->pos.line, node->pos.col, node->pos.filename);
+//     exit(-1);
+// }
+
+void compiler_error(struct compile_process* compiler, const char* msg, ...)
+{
+    va_list args;
+    va_start(args, msg);
+    vfprintf(stderr, msg, args);
+    va_end(args);
+    fprintf(stderr, " on line %i, col %i in file %s\n", compiler->pos.line, compiler->pos.col, compiler->pos.filename);
+    exit(-1);
+}
+
+void compiler_warning(struct compile_process* compiler, const char* msg, ...)
+{
+    va_list args;
+    va_start(args, msg);
+    vfprintf(stderr, msg, args);
+    va_end(args);
+    fprintf(stderr, " on line %i, col %i in file %s\n", compiler->pos.line, compiler->pos.col, compiler->pos.filename);
+}
 int compile_file(const char *filename, const char *out_filename, int flags)
 {
     struct compile_process* process = compile_process_create(filename, out_filename, flags);
@@ -15,6 +48,7 @@ int compile_file(const char *filename, const char *out_filename, int flags)
         return COMPILER_FAILED_WITH_ERRORS;
 
     struct lex_process* lex_process = lex_process_create(process, &compiler_lex_functions, NULL);
+
     if (!lex_process)
         return COMPILER_FAILED_WITH_ERRORS;
 

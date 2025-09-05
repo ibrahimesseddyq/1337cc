@@ -17,7 +17,7 @@ all: ${OBJECTS}
 	gcc token.c ${INCLUDES} -o ./build/token.o -g -c
 
 ./build/node.o: ./lexer.c
-	gcc node.c ${INCLUDES} -o ./build/node.o -g -c
+	gcc node.c ${INCLUDES} -o ./build/node.o -g -c 
 
 ./build/lex_process.o: ./lex_process.c
 	gcc lex_process.c ${INCLUDES} -o ./build/lex_process.o -g -c
