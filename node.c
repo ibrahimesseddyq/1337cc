@@ -1,6 +1,7 @@
 #include "compiler.h"
 #include "helpers/vector.h"
 #include <assert.h>
+#include <stdlib.h>
 
 
 struct vector* node_vector = NULL;
@@ -34,4 +35,13 @@ struct node* node_pop()
 
     vector_pop(node_vector_root);
     return last_node;
+}
+
+struct node* node_create(struct node* _node)
+{
+    struct node* node = malloc(sizeof(struct node));
+    memcpy(node, _node, sizeof(struct node));
+    #warning "we should set the binding owner and binded function here" 
+    node_push(node);
+    return node ;
 }
