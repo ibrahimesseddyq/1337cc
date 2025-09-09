@@ -8,6 +8,21 @@
 #define S_EQ(str, str2)\
     ( str && str2 && (strcmp(str, str2) == 0))
 
+#define TOTAL_OPERATOR_GROUPS 14
+#define MAX_OPERATOR_IN_GROUP 12
+
+enum
+{
+    ASSOCIATIVITY_LEFT_TO_RIGHT,
+    ASSOCIATIVITY_RIGHT_TO_LEFT
+};
+
+struct expressionable_op_precedence_group
+{
+    char* operators[MAX_OPERATOR_IN_GROUP];
+    int associativity;
+};
+
 struct pos
 {
     int         line;
@@ -231,6 +246,74 @@ struct compile_process
 
 };
 
+enum 
+{
+    DATATYPE_FLAG_IS_SIGNED =                        0b00000001,
+    DATATYPE_FLAG_IS_STATIC =                        0b00000010,
+    DATATYPE_FLAG_IS_CONST =                         0b00000100,
+    DATATYPE_FLAG_IS_POINTER =                       0b00001000,
+    DATATYPE_FLAG_IS_ARRAY =                         0b00010000,
+    DATATYPE_FLAG_IS_EXTERN =                        0b00100000,
+    DATATYPE_FLAG_IS_RESTRICT=                       0b01000000,
+    DATATYPE_FLAG_IS_IGNORE_TYPE_CHECKING=           0b10000000,
+    DATATYPE_FLAG_IS_SECONDARY=                      0b100000000,
+    DATATYPE_FLAG_IS_STRUCT_UNION_NO_NAME=           0b1000000000,
+    DATATYPE_FLAG_IS_LITERAL=                        0b10000000000,
+
+
+
+
+};
+enum 
+{
+    DATA_TYPE_VOID,
+    DATA_TYPE_CHAR,
+    DATA_TYPE_SHORT,
+    DATA_TYPE_INTEGER,
+    DATA_TYPE_LONG,
+    DATA_TYPE_FLOAT,
+    DATA_TYPE_DOUBLE,
+    DATA_TYPE_STRUCT,
+    DATA_TYPE_UNION,
+    DATA_TYPE_UNKOWN
+
+
+};
+
+enum 
+{
+    DATA_SIZE_ZERO,
+    DATA_SIZE_BYTE,
+    DATA_SIZE_WORD,
+    DATA_SIZE_DWORD,
+    DATA_SIZE_DDWORD
+};
+struct datatype 
+{
+    int                 flags;
+    int                 type;
+
+    struct datatype*    datatype_secondary;
+
+    const char*         type_str;
+    size_t              size;  
+    int                 pointer_depth;
+
+    union 
+    {
+        struct node* struct_node;
+        struct node* union_node;
+    };
+
+};
+
+enum 
+{
+    DATA_TYPE_EXPECT_PRIMITIVE, 
+    DATA_TYPE_EXPECT_UNION, 
+    DATA_TYPE_EXPECT_STRUCT 
+
+};
 int                 parse(struct compile_process* process);
 char                compile_process_next_char(struct  lex_process* lex_process);
 char                compile_process_peek_char(struct  lex_process* lex_process);
@@ -256,10 +339,13 @@ void                node_push(struct node* node);
 void                node_set_vector(struct vector* vec, struct vector* root_vec);
 
 struct compile_process* compile_process_create(const char* filename, const char* filename_out, int flags);
-bool node_is_expressionable(struct node* node);
-struct node* node_peek_expressionable_or_null();
-int parse_expressionable_single(struct history* history);
-void parse_expressionable(struct history* history);
-void make_exp_node(struct node* left_node, struct node* right_node, const char *op);
-void parse_expressionable(struct history* history);
+bool                    node_is_expressionable(struct node* node);
+struct node*            node_peek_expressionable_or_null();
+int                     parse_expressionable_single(struct history* history);
+void                    make_exp_node(struct node* left_node, struct node* right_node, const char *op);
+void                    parse_expressionable(struct history* history);
+bool                    keyword_is_datatype(const char* str);
+bool                    token_is_primitive_keyword(struct token* token);
+bool                    datatype_is_struct_or_union_for_name(const char* name);
+bool token_is_operator(struct token* token, const char* val);
 #endif

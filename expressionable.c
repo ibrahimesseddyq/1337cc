@@ -1,17 +1,5 @@
-#define TOTAL_OPERATOR_GROUPS 14
-#define MAX_OPERATOR_IN_GROUP 12
-#include "compiler.h"
-enum
-{
-    ASSOCIATIVITY_LEFT_TO_RIGHT,
-    ASSOCIATIVITY_RIGHT_TO_LEFT
-};
 
-struct expressionable_op_precedence_group
-{
-    char* operators[MAX_OPERATOR_IN_GROUP];
-    int associativity;
-};
+#include "compiler.h"
 
 struct expressionable_op_precedence_group op_precedence[TOTAL_OPERATOR_GROUPS] = 
 {
