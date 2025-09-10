@@ -22,6 +22,15 @@ struct expressionable_op_precedence_group
     char* operators[MAX_OPERATOR_IN_GROUP];
     int associativity;
 };
+struct scope 
+{
+    int flags;
+    struct vector* entities;
+    
+    //  the total number of bytes this scope uses, Aligned to 16 bytes.
+    size_t size;
+    struct scope* parent;
+};
 
 struct pos
 {
@@ -229,6 +238,19 @@ struct node
         unsigned long long llnum;
     };
 };
+enum
+{
+    SYMBOL_TYPE_NODE,
+    SYMBOL_TYPE_NATIVE_FUNCTION,
+    SYMBOL_TYPE_UNKOWN,
+};
+
+struct symbol 
+{
+    const char *name;
+    int type;
+    void *data;
+};
 struct compile_process
 {
     int                             flags;
@@ -244,6 +266,16 @@ struct compile_process
         const char  *abs_path;
     } cfile;
 
+    struct 
+    {
+        struct scope* root;
+        struct scope* current;
+    } scope;
+    struct
+    {
+        struct vector* table;
+        struct vector* tables;
+    } symbols;
 };
 
 enum 
@@ -293,7 +325,7 @@ struct datatype
     int                 flags;
     int                 type;
 
-    struct datatype*    datatype_secondary;
+    struct datatype*    secondary;
 
     const char*         type_str;
     size_t              size;  
@@ -348,4 +380,6 @@ bool                    keyword_is_datatype(const char* str);
 bool                    token_is_primitive_keyword(struct token* token);
 bool                    datatype_is_struct_or_union_for_name(const char* name);
 bool token_is_operator(struct token* token, const char* val);
+void parser_datatype_init_type_and_size_for_primitive(struct token* datatype_token, struct token* datatype_secondary_token, struct datatype* datatype_out);
+void parser_ignore_int(struct datatype* dtype);
 #endif

@@ -374,11 +374,22 @@ void parser_datatype_init_type_and_size(struct token* datatype_token, struct tok
         case DATA_TYPE_EXPECT_UNION:
             compiler_error(current_process, "Structure and union types are currently unsupported");
             break;
+        default:
+            compiler_error(current_process, "Unsupported datatype");
     }
 
 }
 void parser_datatype_init(struct token* datatype_token, struct token* datatype_secondary_token,  struct datatype* datatype_out, int pointer_depth, int expected_type)
 {
+    parser_datatype_init_type_and_size(datatype_token, datatype_secondary_token, datatype_out, pointer_depth, expected_type); 
+    datatype_out->type_str = datatype_token->sval;
+
+    if (S_EQ(datatype_token->sval, "long") && datatype_secondary_token && S_EQ(datatype_secondary_token->sval, "long"))
+    {
+        compiler_warning(current_process, "our compiler doesnt support 64 bit long so its defaulted to 32 bit\n");
+        datatype_out->size = DATA_SIZE_DWORD;
+    }
+
 
 }
 void parse_datatype_type(struct datatype* dtype)
@@ -402,6 +413,8 @@ void parse_datatype_type(struct datatype* dtype)
     }
 
     int pointer_depth = parser_get_pointer_depth();
+    parser_datatype_init(datatype_token, datatype_secondary_token, dtype, pointer_depth, expected_type);
+
 }
 void parse_datatype(struct datatype* dtype)
 {
@@ -412,10 +425,49 @@ void parse_datatype(struct datatype* dtype)
     parse_datatype_type(dtype);
     parse_datatype_modifiers(dtype);
 }
+void parse_variable(struct datatype* dtype, struct token* name_token, struct history* history)
+{
+    struct node* value_node = NULL;
+    #warning "Dont forget to check for array brackets
+
+    if (token_next_is_operator("="))
+    {
+        token_next();
+
+        parse_expressionable_root(history);
+    }
+}
 void parse_variable_function_or_struct_union(struct history* history)
 {
      struct datatype dtype;
      parse_datatype(&dtype);
+
+     parser_ignore_int(&dtype);
+
+     struct token* name_token = token_next();
+     if (name_token->type != TOKEN_TYPE_IDENTIFIER)
+     {
+        compiler_error(current_process, "expecting a valid name\n");
+     }
+
+
+}
+bool parser_is_int_valid_after_datatype(struct datatype* dtype)
+{
+    return dtype->type == DATA_TYPE_LONG || dtype->type == DATA_TYPE_FLOAT || dtype->type == DATA_TYPE_DOUBLE;
+}
+void parser_ignore_int(struct datatype* dtype)
+{
+    
+    if (!token_is_keyword(token_peek_next(), "int"))
+    {
+        return ;
+    }
+    if(!parser_is_int_valid_after_datatype(dtype))
+    {
+        compiler_error(current_process, "you provided a secodnary int type that curretly not supported");
+    }
+    token_next();
 }
 void parse_keyword(struct history* history)
 {
@@ -465,6 +517,12 @@ void parse_expressionable(struct history* history)
     
     }
 }
+void parse_keyword_for_global()
+{
+    parse_keyword(history_begin(0));
+    struct node* node = node_pop();
+    
+}
 int parse_next()
 {
     struct token* token = token_peek_next();
@@ -481,6 +539,8 @@ int parse_next()
         case TOKEN_TYPE_STRING:
             parse_expressionable(history_begin(0));
             break;
+        case TOKEN_TYPE_KEYWORD:
+            parse_keyword_for_global();
 
     }
     return 0;

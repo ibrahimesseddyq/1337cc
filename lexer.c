@@ -304,12 +304,12 @@ struct token* token_make_multiline_comment()
 
     while(1)
     {
-        LEX_GETC_IF(buffer, c, c != "*" && c != EOF);
+        LEX_GETC_IF(buffer, c, c != '*' && c != EOF);
         if (c == EOF)
         {
             compiler_error(lex_process->compiler, "You did not close this mutiline comment\n");
         }
-        else if (c =="*")
+        else if (c == '*')
         {
             nextc();
             if (peekc() == '/')
@@ -333,7 +333,7 @@ struct token* handle_comment()
             nextc();
             return token_make_one_line_comment();
         }
-        else if (peekc() == "*")
+        else if (peekc() == '*')
         {
             nextc();
             return token_make_multiline_comment();
