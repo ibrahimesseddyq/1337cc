@@ -206,6 +206,27 @@ enum
 {
     NODE_FLAG_INSIDE_EXPRESSION = 0b00000001
 };
+struct node ;
+
+struct datatype 
+{
+    int                 flags;
+    int                 type;
+
+    struct datatype*    secondary;
+
+    const char*         type_str;
+    size_t              size;  
+    int                 pointer_depth;
+
+    union 
+    {
+        struct node* struct_node;
+        struct node* union_node;
+    };
+
+};
+
 struct node 
 {
     int type;
@@ -227,6 +248,17 @@ struct node
             struct node* right;
             const char * op;
         } exp;
+
+        struct var
+        {
+            struct datatype type;
+            const char *name;
+            struct node* var;
+        } var;
+        struct varlist 
+        {
+            struct vector* list;
+        } var_list;
     };
 
     union 
@@ -319,24 +351,6 @@ enum
     DATA_SIZE_WORD,
     DATA_SIZE_DWORD,
     DATA_SIZE_DDWORD
-};
-struct datatype 
-{
-    int                 flags;
-    int                 type;
-
-    struct datatype*    secondary;
-
-    const char*         type_str;
-    size_t              size;  
-    int                 pointer_depth;
-
-    union 
-    {
-        struct node* struct_node;
-        struct node* union_node;
-    };
-
 };
 
 enum 
