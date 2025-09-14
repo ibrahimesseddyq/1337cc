@@ -1,6 +1,7 @@
  #ifndef COMPILER_H
  #define COMPILER_H 
 
+#include <stddef.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -207,6 +208,11 @@ enum
     NODE_FLAG_INSIDE_EXPRESSION = 0b00000001
 };
 struct node ;
+struct array_brackets
+{
+    struct vector* n_brackets;
+
+};
 
 struct datatype 
 {
@@ -224,7 +230,11 @@ struct datatype
         struct node* struct_node;
         struct node* union_node;
     };
-
+    struct array 
+    {
+        struct array_brackets* brackets;
+        size_t size;
+    } array;
 };
 
 struct node 
@@ -253,12 +263,17 @@ struct node
         {
             struct datatype type;
             const char *name;
-            struct node* var;
+            struct node* val;
         } var;
         struct varlist 
         {
             struct vector* list;
         } var_list;
+
+        struct bracket 
+        {
+            struct node* inner;
+        } bracket; 
     };
 
     union 
@@ -396,4 +411,46 @@ bool                    datatype_is_struct_or_union_for_name(const char* name);
 bool token_is_operator(struct token* token, const char* val);
 void parser_datatype_init_type_and_size_for_primitive(struct token* datatype_token, struct token* datatype_secondary_token, struct datatype* datatype_out);
 void parser_ignore_int(struct datatype* dtype);
+
+
+struct array_brackets* array_brackets_new();
+
+
+void array_brackets_free(struct array_brackets* brackets);
+
+void array_brackets_add(struct array_brackets* brackets, struct node* bracket_node);
+struct vector* array_brackets_node_vector(struct array_brackets* brackets);
+
+size_t array_brackets_calculate_size_from_index(struct datatype* dtype, struct array_brackets* brackets, int index);
+size_t array_brackets_calculate_size(struct datatype* dtype, struct array_brackets* brackets);
+
+int array_total_indexes(struct datatype* dtype);
+void make_bracket_node(struct node* node);
+bool datatype_is_struct_or_union(struct datatype* dtype);
+struct scope* scope_new(struct compile_process* process, int flags);
+struct scope* scope_alloc();
+void scope_dealloc(struct scope* scope);
+struct scope* scope_create_root(struct compile_process* process);
+void scope_free_root(struct compile_process* process);
+void scope_iteration_start(struct scope* scope);
+void scope_iteration_end(struct scope* scope);
+void* scope_iteration_back(struct scope* scope);
+void* scope_last_entity_at_scope(struct scope* scope);
+void *scope_last_entity_from_scope_stop_at(struct scope* scope, struct scope* stop_scope);
+void * scope_last_entity_stop_at(struct compile_process* process, struct scope* stop_scope);
+void* scope_last_entity(struct compile_process* process);
+void scope_push(struct compile_process* process, void *ptr, size_t elem_size);
+void scope_finish(struct compile_process* process);
+struct scope* scope_current(struct compile_process* process);
+
+
+
+
+
+
+
+
+
+
+
 #endif
