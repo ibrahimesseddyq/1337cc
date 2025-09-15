@@ -274,6 +274,21 @@ struct node
         {
             struct node* inner;
         } bracket; 
+
+        struct _struct 
+        {
+            const char* name;
+            struct node* body_n;
+            struct node* var;
+        } _struct;
+        struct body 
+        {
+            struct vector* statements;
+            size_t size;
+            bool padded;
+
+            struct node* largest_var_node;
+        } body;
     };
 
     union 
@@ -442,14 +457,18 @@ void* scope_last_entity(struct compile_process* process);
 void scope_push(struct compile_process* process, void *ptr, size_t elem_size);
 void scope_finish(struct compile_process* process);
 struct scope* scope_current(struct compile_process* process);
+void make_body_node(struct vector* body_vec, size_t size, bool padded, struct node* largest_var_node);
 
 
 
 
+size_t datatype_size_for_array_access(struct datatype* dtype);
+size_t datatype_element_size(struct datatype* dtype);
+size_t datatype_size_no_ptr(struct datatype* dtype);
+size_t datatype_size(struct datatype* dtype);
+size_t variable_size(struct node* var_node);
 
-
-
-
+size_t variable_size_for_list(struct node* var_list_node);
 
 
 
