@@ -75,3 +75,34 @@ struct node* node_create(struct node* _node)
     node_push(node);
     return node ;
 }
+
+bool node_is_struct_or_union_variable(struct node* node)
+{
+    if (node->type != NODE_TYPE_VARIABLE)
+    {
+        return false;
+    }
+
+    return datatype_is_struct_or_union(&node->var.type);
+}
+struct node* variable_node(struct node* node)
+{
+    struct node* var_node = NULL;
+    switch (node->type)
+    {
+        case NODE_TYPE_VARIABLE:
+            var_node = node;
+            break;
+        case NODE_TYPE_STRUCT:
+            var_node = node->_struct.var;
+            break;
+        case NODE_TYPE_UNION:
+            var_node = node->_union.var;
+            assert(1 == 0 && "Unions are not yet implemented");
+            break;
+        
+    }
+    return var_node;
+}
+
+bool variable_node_is 

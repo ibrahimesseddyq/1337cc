@@ -262,8 +262,11 @@ struct node
         struct var
         {
             struct datatype type;
-            const char *name;
-            struct node* val;
+            const char      *name;
+            // aligned offset 
+            int             aoffset;
+            struct node*    val;
+            int padding;
         } var;
         struct varlist 
         {
@@ -460,7 +463,7 @@ struct scope* scope_current(struct compile_process* process);
 void make_body_node(struct vector* body_vec, size_t size, bool padded, struct node* largest_var_node);
 
 
-
+struct node* variable_node(struct node* node);
 
 size_t datatype_size_for_array_access(struct datatype* dtype);
 size_t datatype_element_size(struct datatype* dtype);
@@ -470,6 +473,12 @@ size_t variable_size(struct node* var_node);
 
 size_t variable_size_for_list(struct node* var_list_node);
 
+bool node_is_struct_or_union_variable(struct node* node);
+int padding(int val, int to);
 
+int align_value(int val, int to);
+
+int align_value_treat_positive(int val, int to);
+int compute_sum_padding(struct vector* vec);
 
 #endif
