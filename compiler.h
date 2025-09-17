@@ -205,7 +205,10 @@ enum
 };
 enum 
 {
-    NODE_FLAG_INSIDE_EXPRESSION = 0b00000001
+    NODE_FLAG_INSIDE_EXPRESSION =       0b00000001,
+    NODE_FLAG_IS_FORWARD_DECLARATION=   0b00000010,
+    NODE_FLAG_HAS_VARIABLE_COMBINED=    0b00000100
+
 };
 struct node ;
 struct array_brackets
@@ -470,7 +473,7 @@ size_t datatype_element_size(struct datatype* dtype);
 size_t datatype_size_no_ptr(struct datatype* dtype);
 size_t datatype_size(struct datatype* dtype);
 size_t variable_size(struct node* var_node);
-
+void make_struct_node(const char* name, struct node* body_node);
 size_t variable_size_for_list(struct node* var_list_node);
 
 bool node_is_struct_or_union_variable(struct node* node);
@@ -480,5 +483,5 @@ int align_value(int val, int to);
 
 int align_value_treat_positive(int val, int to);
 int compute_sum_padding(struct vector* vec);
-
+void symbolresolver_build_for_node(struct compile_process* process, struct node* node);
 #endif
