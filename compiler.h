@@ -508,7 +508,7 @@ struct symbol* symbolresolver_get_symbol(struct compile_process* process, const 
 struct node* node_from_symbol(struct symbol* sym);
 struct node* node_from_symbol(struct compile_process* current_process, const char* name);
 struct node* struct_node_for_name(struct compile_process* current_process, const char* name);
-
+void parse_function(struct datatype* ret_type, struct token* name_token, struct history* history);
 void symbolresolver_new_table(struct compile_process* process);
 bool token_is_identifier(struct token* token);
 void symbolresolver_end_table(struct compile_process* process);

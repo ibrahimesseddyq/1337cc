@@ -40,10 +40,11 @@ struct parser_scope_entity* parser_scope_last_entity_stop_global_scope()
 }
 enum 
 {
-    HISTORY_FLAG_INSIDE_UNION =    0b00000001,
-    HISTORY_FLAG_IS_UPWARD_STACK = 0b00000010,
-    HISTORY_FLAG_IS_GLOBAL_SCOPE = 0b00000100,
-    HISTORY_FLAG_INSIDE_STRUCTURE = 0b00001000
+    HISTORY_FLAG_INSIDE_UNION =         0b00000001,
+    HISTORY_FLAG_IS_UPWARD_STACK =      0b00000010,
+    HISTORY_FLAG_IS_GLOBAL_SCOPE =      0b00000100,
+    HISTORY_FLAG_INSIDE_STRUCTURE =     0b00001000,
+    HISTORY_FLAG_INSIDE_FUNCTION_BODY = 0b00010000
 
 };
 struct history* history_begin(int flags)
@@ -917,6 +918,48 @@ void parse_struct_or_union(struct datatype* dtype)
             compiler_error(current_process, "COMPILER BUG: The provided datatype is not a structure or union");
     }   
 }
+void token_read_dots(size_t amount)
+{
+    for (size_t i = 0; i < amount; i++)
+    {
+        expect_op(".");
+    }
+}
+void parse_variable_full(struct history* history)
+{
+    struct datatype* dtype;
+    parse_datatype(&dtype);
+
+    struct token* name_token = NULL;
+    if (token_peek_next()->type == TOKEN_TYPE_IDENTIFIER)
+    {
+        name_token = token_next();
+    }
+    parse_variable(&dtype, name_token,history);
+}
+struct vector* parse_function_arguments(struct history* history)
+{
+    parser_scope_new();
+    struct vactor* arguments_vec = vector_create(sizeof(struct node*));
+
+    while(!token_next_is_symbol(')'))
+    {
+        if (token_next_is_operator("."))
+        {
+            token_read_dots(3);
+            parser_scope_finish();
+            return arguments_vec;
+        }
+        parse_variable_full(history_down(history, history->flags | HISTORY_FLAG_IS_UPWARD_STACK));
+        struct node* argument_node = node_pop();
+        vector_push(arguments_vec, &argument_node);
+
+        if(!token_next_is_operator(","))
+        {
+            break;
+        }
+    }
+}
 void parse_variable_function_or_struct_union(struct history* history)
 {
      struct datatype dtype;
@@ -940,6 +983,13 @@ void parse_variable_function_or_struct_union(struct history* history)
         compiler_error(current_process, "expecting a valid name\n");
     }
 
+
+
+    if (token_next_is_operator("{"))
+    {
+        parse_function(&dtype, name_token, history);
+        return;
+    }
     parse_variable(&dtype, name_token, history);
     if ( token_is_operator(token_peek_next(), ","))
      {
@@ -1032,6 +1082,10 @@ void parse_keyword_for_global()
     node_push(node);
     
 }
+void parse_function_body(struct history* history)
+{
+    parse_body(NULL, history_down(history, history->flags | HISTORY_FLAG_INSIDE_FUNCTION_BODY));
+}
 void parse_function(struct datatype* ret_type, struct token* name_token, struct history* history)
 {
     struct vector* arguments_vector = NULL;
@@ -1053,8 +1107,13 @@ void parse_function(struct datatype* ret_type, struct token* name_token, struct 
     {
         function_node->func.flags |= FUNCTION_NODE_FLAG_IS_NATIVE;
     }
-    
 
+    if (token_next_is_symbol('{'))
+    {
+        parse_function_body(history_begin(0));
+        struct node* body_node = node_pop();
+        function_node->func.body_n = body_node;
+    }
     parser_scope_finish();
 
 }
@@ -1069,7 +1128,11 @@ void parse_symbol()
 
         node_push(body_node);
     }
-
+    else 
+    {
+        expect_sym(';');
+    }
+    parser_current_function = NULL;
 }
 int parse_next()
 {
