@@ -6,7 +6,7 @@ static void symbolresolver_push_symbol(struct compile_process* process, struct s
 {
     vector_push(process->symbols.table, &sym);
 }
-void symbolresolver_initialized(struct compile_process* process)
+void symbolresolver_initialize(struct compile_process* process)
 {
     process->symbols.tables = vector_create(sizeof(struct vector*));
 

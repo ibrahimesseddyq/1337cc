@@ -28,6 +28,9 @@ struct compile_process* compile_process_create(const char* filename, const char*
     process->flags = flags;
     process->cfile.fp = file;
     process->ofile = out_file;
+
+    symbolresolver_initialize(process);
+    symbolresolver_new_table(process);
     return process;
 }
 char compile_process_next_char(struct  lex_process* lex_process)
