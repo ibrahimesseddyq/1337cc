@@ -484,4 +484,8 @@ int align_value(int val, int to);
 int align_value_treat_positive(int val, int to);
 int compute_sum_padding(struct vector* vec);
 void symbolresolver_build_for_node(struct compile_process* process, struct node* node);
+struct symbol* symbolresolver_get_symbol(struct compile_process* process, const char *name);
+struct node* node_from_symbol(struct symbol* sym);
+struct node* node_from_symbol(struct compile_process* current_process, const char* name);
+struct node* struct_node_for_name(struct compile_process* current_process, const char* name);
 #endif
