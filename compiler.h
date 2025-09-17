@@ -512,4 +512,6 @@ struct node* struct_node_for_name(struct compile_process* current_process, const
 void symbolresolver_new_table(struct compile_process* process);
 bool token_is_identifier(struct token* token);
 void symbolresolver_end_table(struct compile_process* process);
+void make_function_node(struct datatype* ret_type, const char* name, struct vector* arguments, struct node* body_node);
+struct symbol* symbolresolver_get_symbol_for_native_function(struct compile_process* process, const char * name);
 #endif

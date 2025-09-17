@@ -8,6 +8,8 @@ static struct compile_process* current_process;
 static struct token* parser_last_token;
 extern struct  expressionable_op_precedence_group op_precedence[TOTAL_OPERATOR_GROUPS];
 extern struct node* parser_current_body;
+extern struct node* parser_current_function;
+
 void parse_body(size_t* variable_size, struct history* history);
 void parse_keyword(struct history* history);
 enum 
@@ -1029,6 +1031,32 @@ void parse_keyword_for_global()
 
     node_push(node);
     
+}
+void parse_function(struct datatype* ret_type, struct token* name_token, struct history* history)
+{
+    struct vector* arguments_vector = NULL;
+    parser_scope_new();
+
+    make_function_node(ret_type, name_token->sval, NULL, NULL);
+    struct node* function_node = node_peek();
+    parser_current_function = function_node;
+    if (datatype_is_struct_or_union(ret_type))
+    {
+        function_node->func.args.stack_addition += DATA_SIZE_DWORD;
+    }
+    expect_op("(");
+    #warning "Parse the functions arguments"
+    expect_sym(')');
+
+    function_node->func.args.vector = arguments_vector;
+    if(symresolver_get_symbol_for_native_function(current_process, name_token->sval))
+    {
+        function_node->func.flags |= FUNCTION_NODE_FLAG_IS_NATIVE;
+    }
+    
+
+    parser_scope_finish();
+
 }
 void parse_symbol()
 {
