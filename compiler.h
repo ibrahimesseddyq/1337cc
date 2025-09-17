@@ -262,6 +262,11 @@ struct node
             const char * op;
         } exp;
 
+        struct parenthesis 
+        {
+            struct node* exp;
+
+        } parenthesis;
         struct var
         {
             struct datatype type;
@@ -453,7 +458,7 @@ bool token_is_operator(struct token* token, const char* val);
 void parser_datatype_init_type_and_size_for_primitive(struct token* datatype_token, struct token* datatype_secondary_token, struct datatype* datatype_out);
 void parser_ignore_int(struct datatype* dtype);
 
-
+void make_exp_parenthesis_node(struct node* exp_node);
 struct array_brackets* array_brackets_new();
 
 struct node* variable_node_or_list(struct node* node);
@@ -514,4 +519,8 @@ bool token_is_identifier(struct token* token);
 void symbolresolver_end_table(struct compile_process* process);
 void make_function_node(struct datatype* ret_type, const char* name, struct vector* arguments, struct node* body_node);
 struct symbol* symbolresolver_get_symbol_for_native_function(struct compile_process* process, const char * name);
+size_t function_node_argument_stack_addition(struct node* node);
+bool node_is_expression_or_parentheses(struct node* node);
+bool node_is_value_type(struct node* node);
+void parse_expressionable_root(struct history* history);
 #endif

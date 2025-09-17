@@ -10,8 +10,13 @@ extern struct  expressionable_op_precedence_group op_precedence[TOTAL_OPERATOR_G
 extern struct node* parser_current_body;
 extern struct node* parser_current_function;
 
+
+struct node* parser_blank_node;
+
+
 void parse_body(size_t* variable_size, struct history* history);
 void parse_keyword(struct history* history);
+struct vector* parse_function_arguments(struct history* history);
 enum 
 {
     PARSER_SCOPE_ENTITY_ON_STACK = 0b00000001,
@@ -265,9 +270,49 @@ void parse_exp_normal(struct history* history)
     parser_reorder_expression(&exp_node);
     node_push(exp_node);
 }
+void parser_deal_with_additional_expression()
+{
+    if (token_peek_next()->type == TOKEN_TYPE_OPERATOR)
+    {
+        parse_expressionable(history_begin(0));
+    }
+}
+void parse_for_parenthesis(struct history* history)
+{
+    expect_op("(");
+     struct node* left_node = NULL;
+     struct node* tmp_node = node_peek_or_null();
+     if (tmp_node && node_is_value_type(tmp_node))
+     {
+        left_node = tmp_node;
+        node_pop();
+     }
+
+     struct node* exp_node = parser_blank_node;
+     if (!token_next_is_symbol(')'))
+     {
+        parse_expressionable_root(history_begin(0));
+        exp_node = node_pop();
+     }
+     expect_sym(')');
+     make_exp_parenthesis_node(exp_node);
+     if (left_node)
+     {
+        struct node* parenthesis_node = node_pop();
+        make_exp_node(left_node, parenthesis_node, "()");
+     }
+
+     parser_deal_with_additional_expression();
+}
 int parse_exp(struct history* history)
 {
-    parse_exp_normal(history);
+    if (S_EQ(token_peek_next()->sval, "("))
+    {
+        parse_for_parenthesis((history));
+
+    }
+    else
+        parse_exp_normal(history);
     return 0;
 }
 
@@ -551,8 +596,12 @@ void parser_scope_offset_for_stack(struct node* node, struct history* history)
     int offset = -variable_size(node);
     if (upward_stack)
     {
-        #warning "HANDLE UPWARD STACK"
-        compiler_error(current_process, "Not yet Implemented");
+        size_t stack_addition = function_node_argument_stack_addition(parser_current_function);
+        offset = stack_addition;
+        if (last_entity)
+        {
+            offset = datatype_size(&variable_node(last_entity->node)->var.type);
+        }
     }
 
     if (last_entity)
@@ -958,7 +1007,12 @@ struct vector* parse_function_arguments(struct history* history)
         {
             break;
         }
+
+        token_next(); 
     }
+
+    parser_scope_finish();
+    return arguments_vec;
 }
 void parse_variable_function_or_struct_union(struct history* history)
 {
@@ -1055,6 +1109,7 @@ int parse_expressionable_single(struct history* history)
             break;
         case TOKEN_TYPE_IDENTIFIER:
             parse_identifier(history);
+            res = 0;
             break;
         case TOKEN_TYPE_OPERATOR:
             parse_exp(history);
@@ -1099,7 +1154,7 @@ void parse_function(struct datatype* ret_type, struct token* name_token, struct 
         function_node->func.args.stack_addition += DATA_SIZE_DWORD;
     }
     expect_op("(");
-    #warning "Parse the functions arguments"
+    arguments_vector = parse_function_arguments(history_begin(0));
     expect_sym(')');
 
     function_node->func.args.vector = arguments_vector;
@@ -1165,8 +1220,8 @@ int parse(struct compile_process* process)
     scope_create_root(process);
     current_process = process;
     parser_last_token = NULL;
-
     node_set_vector(process->node_vec, process->node_tree_vec);
+    parser_blank_node = node_create(&(struct node){.type=NODE_TYPE_BLANK});
     struct node* node=NULL;
 
     vector_set_peek_pointer(process->token_vec, 0);
