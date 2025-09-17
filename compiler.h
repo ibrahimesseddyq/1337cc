@@ -295,6 +295,21 @@ struct node
 
             struct node* largest_var_node;
         } body;
+        struct function 
+        {
+            int flags;
+            struct datatype* rtype;
+            const char* name;
+            struct function_arguments
+            {
+                struct vector* vector;
+                size_t stack_addition;
+            } args;
+
+            struct node* body_n;
+
+            size_t stack_size;
+        } func;
     };
 
     union 
@@ -389,6 +404,11 @@ enum
     DATA_SIZE_DDWORD
 };
 
+enum 
+{
+    FUNCTION_NODE_FLAG_IS_NATIVE = 0b00000001,
+
+};
 enum 
 {
     DATA_TYPE_EXPECT_PRIMITIVE, 
