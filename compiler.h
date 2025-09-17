@@ -433,7 +433,7 @@ void parser_ignore_int(struct datatype* dtype);
 
 struct array_brackets* array_brackets_new();
 
-
+struct node* variable_node_or_list(struct node* node);
 void array_brackets_free(struct array_brackets* brackets);
 
 void array_brackets_add(struct array_brackets* brackets, struct node* bracket_node);
@@ -461,8 +461,8 @@ void scope_push(struct compile_process* process, void *ptr, size_t elem_size);
 void scope_finish(struct compile_process* process);
 struct scope* scope_current(struct compile_process* process);
 void make_body_node(struct vector* body_vec, size_t size, bool padded, struct node* largest_var_node);
-
-
+bool variable_node_is_primitive(struct node* node);
+bool datatype_is_primitive(struct datatype* dtype);
 struct node* variable_node(struct node* node);
 
 size_t datatype_size_for_array_access(struct datatype* dtype);
