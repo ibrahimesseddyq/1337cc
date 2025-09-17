@@ -308,7 +308,7 @@ struct node
 
             struct node* body_n;
 
-            size_t stack_size;
+            size_t stack_size; 
         } func;
     };
 
