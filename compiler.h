@@ -376,6 +376,11 @@ struct node
                 struct vector* cases;
                 bool has_default_case;
             } switch_stmt;
+
+            struct _goto_stmt
+            {
+                struct node* label;
+            } _goto;
         } stmt;
         struct node_label
         {
@@ -590,5 +595,6 @@ struct symbol* symbolresolver_get_symbol_for_native_function(struct compile_proc
 size_t function_node_argument_stack_addition(struct node* node);
 bool node_is_expression_or_parentheses(struct node* node);
 bool node_is_value_type(struct node* node);
+void make_goto_node(struct node* label_node);
 void parse_expressionable_root(struct history* history);
 #endif

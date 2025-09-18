@@ -1271,7 +1271,16 @@ void parse_break(struct history* history)
     expect_sym(';');
     make_break_node();
 }
-void parse_goto(struct history* )
+void parse_goto(struct history* history)
+{
+    expect_keyword("goto");
+    parse_identifier(history_begin(0));
+
+    expect_sym(';');
+    struct node* label_node = node_pop();
+    make_goto_node(label_node);
+
+}
 void parse_label(struct history* history)
 {
     expect_sym(':');
@@ -1332,6 +1341,11 @@ void parse_keyword(struct history* history)
     else if (S_EQ(token->sval, "break"))
     {
         parse_continue(history);
+        return;
+    }
+    else if (S_EQ(token->sval, "goto"))
+    {
+        parse_goto(history);
         return;
     }
 }
