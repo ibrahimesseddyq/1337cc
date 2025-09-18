@@ -318,6 +318,10 @@ struct node
 
         union statement 
         {
+            struct return_stmt
+            {
+                struct node* exp;  
+            }return_stmt;
             struct if_stmt
             {
                 struct node *cond_node;
@@ -330,6 +334,15 @@ struct node
             {
                 struct node* body_node;
             } else_stmt;
+
+            struct for_stmt
+            {
+                struct node* init_node;
+                struct node* cond_node;
+                struct node* loop_node;
+                struct node* body_node;
+
+            } for_stmt;
         } ;
     };
 
@@ -460,7 +473,7 @@ struct node*        node_peek();
 struct node*        node_peek_or_null();
 void                node_push(struct node* node);
 void                node_set_vector(struct vector* vec, struct vector* root_vec);
-
+void make_return_node(struct node* exp_node);
 struct compile_process* compile_process_create(const char* filename, const char* filename_out, int flags);
 bool                    node_is_expressionable(struct node* node);
 struct node*            node_peek_expressionable_or_null();
@@ -473,7 +486,7 @@ bool                    datatype_is_struct_or_union_for_name(const char* name);
 bool token_is_operator(struct token* token, const char* val);
 void parser_datatype_init_type_and_size_for_primitive(struct token* datatype_token, struct token* datatype_secondary_token, struct datatype* datatype_out);
 void parser_ignore_int(struct datatype* dtype);
-
+void make_for_node(struct node *init_node, struct node *cond_node, struct node *loop_node, struct node *body_node);
 void make_exp_parenthesis_node(struct node* exp_node);
 struct array_brackets* array_brackets_new();
 
