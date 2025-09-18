@@ -1151,7 +1151,7 @@ bool parse_for_loop_part_loop(struct history* history)
         return false;
     }
     parse_expressionable(history);
-    return true;
+    return true; 
 }
 void parse_for_stmt(struct history* history)
 {
