@@ -60,7 +60,10 @@ void make_exp_node(struct node* left_node, struct node* right_node, const char *
     assert(right_node);
     node_create(&(struct node){.type=NODE_TYPE_EXPRESSION_PARENTHESIS, .exp.left=left_node, .exp.right=right_node, .exp.op=op});
 } 
-
+void make_label_node(struct node* name_node)
+{
+    node_create(&(struct node){.type=NODE_TYPE_LABEL, .label.name=name_node});
+}
 void make_continue_node()
 {
     node_create(&(struct node){.type=NODE_TYPE_STATEMENT_CONTINUE});

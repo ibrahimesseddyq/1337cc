@@ -10,7 +10,7 @@ extern struct  expressionable_op_precedence_group op_precedence[TOTAL_OPERATOR_G
 extern struct node* parser_current_body;
 extern struct node* parser_current_function;
 void parse_expressionable_root(struct history* history);
-
+void parse_label(struct history* history);
 struct node* parser_blank_node;
 
 
@@ -1259,6 +1259,32 @@ void parse_return(struct history* history)
     struct node* exp_node = node_pop();
     make_return_node(exp_node);
 }
+void parse_continue(struct history* history)
+{
+    expect_keyword("continue");
+    expect_sym(';');
+    make_continue_node();
+}
+void parse_break(struct history* history)
+{
+    expect_keyword("break");
+    expect_sym(';');
+    make_break_node();
+}
+void parse_goto(struct history* )
+void parse_label(struct history* history)
+{
+    expect_sym(':');
+    struct node* label_name_node = node_pop();
+
+    if (label_name_node->type != NODE_TYPE_IDENTIFIER)
+    {
+        compiler_error(current_process, "Expecting an identifier for labels something else was provided\n");
+    }
+
+    make_label_node(label_name_node);
+
+}
 void parse_keyword(struct history* history)
 {
     struct token* token = token_peek_next();
@@ -1298,19 +1324,18 @@ void parse_keyword(struct history* history)
         parse_switch(history);
         return;
     }
+    else if (S_EQ(token->sval, "continue"))
+    {
+        parse_break(history);
+        return;
+    }
+    else if (S_EQ(token->sval, "break"))
+    {
+        parse_continue(history);
+        return;
+    }
 }
-void parse_continue(struct history* history)
-{
-    expect_keyword("continue");
-    expect_sym(';');
-    make_continue_node();
-}
-void parse_break(struct history* history)
-{
-    expect_keyword("break");
-    expect_sym(';');
-    make_break_node();
-}
+
 int parse_expressionable_single(struct history* history)
 {
     struct token* token = token_peek_next();
@@ -1403,11 +1428,14 @@ void parse_symbol()
 
         node_push(body_node);
     }
-    else 
+    else if(token_next_is_symbol(':'))
     {
-        expect_sym(';');
+        parse_label(history_begin(0));
+        return;
     }
-    parser_current_function = NULL;
+
+    compiler_error(current_process, "Invalid symbol was provided");
+
 }
 int parse_next()
 {

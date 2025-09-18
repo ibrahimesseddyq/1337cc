@@ -205,6 +205,8 @@ enum
     NODE_TYPE_UNION,
     NODE_TYPE_BRACKET,
     NODE_TYPE_CAST,
+    NODE_TYPE_LABEL,
+
     NODE_TYPE_BLANK,
 };
 enum 
@@ -374,7 +376,11 @@ struct node
                 struct vector* cases;
                 bool has_default_case;
             } switch_stmt;
-        } ;
+        } stmt;
+        struct node_label
+        {
+            struct node* name;
+        } label;
     };
 
     union 
@@ -513,6 +519,7 @@ void                    make_exp_node(struct node* left_node, struct node* right
 void                    parse_expressionable(struct history* history);
 bool                    keyword_is_datatype(const char* str);
 bool                    token_is_primitive_keyword(struct token* token);
+void make_label_node(struct node* name_node);
 bool                    datatype_is_struct_or_union_for_name(const char* name);
 bool token_is_operator(struct token* token, const char* val);
 void parser_datatype_init_type_and_size_for_primitive(struct token* datatype_token, struct token* datatype_secondary_token, struct datatype* datatype_out);
