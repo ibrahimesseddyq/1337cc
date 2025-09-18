@@ -396,6 +396,11 @@ struct node
         {
             struct node* name;
         } label;
+        struct cast 
+        {
+            struct datatype dtype;
+            struct node* operand;
+        } cast;
     };
 
     union 
@@ -570,6 +575,7 @@ void * scope_last_entity_stop_at(struct compile_process* process, struct scope* 
 void* scope_last_entity(struct compile_process* process);
 void scope_push(struct compile_process* process, void *ptr, size_t elem_size);
 void scope_finish(struct compile_process* process);
+void make_cast_node(struct datatype* dtype, struct node* operand_node);
 struct scope* scope_current(struct compile_process* process);
 void make_body_node(struct vector* body_vec, size_t size, bool padded, struct node* largest_var_node);
 bool variable_node_is_primitive(struct node* node);

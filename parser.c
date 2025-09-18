@@ -13,9 +13,11 @@ void parse_expressionable_root(struct history* history);
 void parse_label(struct history* history);
 struct node* parser_blank_node;
 
+void parse_datatype(struct datatype* dtype);
 void parse_for_ternary(struct history* history);
 void parse_body(size_t* variable_size, struct history* history);
 void parse_keyword(struct history* history);
+void parse_datatype(struct datatype* dtype);
 struct vector* parse_function_arguments(struct history* history);
 enum 
 {
@@ -86,9 +88,7 @@ void parser_register_case(struct history* history, struct node* case_node)
 {
     assert(history->flags & HISTORY_FLAG_IN_SWITCH_STATEMENT);
     struct parsed_switch_case scase;
-    #warning "TO IMPLEMENT, MUST BE SET TO THE CASE INDEX"
-
-    scase.index = 0;
+    scase.index = case_node->stmt._case.exp->llnum;
     vector_push(history->_switch.case_data.cases, &        scase);
 
 }
@@ -315,9 +315,15 @@ void parser_deal_with_additional_expression()
         parse_expressionable(history_begin(0));
     }
 }
+void parse_for_cast();
 void parse_for_parenthesis(struct history* history)
 {
     expect_op("(");
+    if (token_peek_next()->type == TOKEN_TYPE_KEYWORD)
+    {
+        parse_for_cast();
+        return;
+    }
      struct node* left_node = NULL;
      struct node* tmp_node = node_peek_or_null();
      if (tmp_node && node_is_value_type(tmp_node))
@@ -351,6 +357,36 @@ void parse_for_commas(struct history* history)
     struct node* right_node = node_pop();
     make_exp_node(left_node, right_node, ",");
 }
+void parse_parse_for_array(struct history* history)
+{
+    struct node* left_node = node_peek_or_null();
+    if (left_node)
+    {
+        node_pop();
+    }
+    expect_op("[");
+    parse_expressionable_root(history);
+    expect_sym(']');
+
+    struct node* exp_node = node_pop();
+    make_brackets_node(exp_node);
+    if (left_node)
+    {
+        struct node* bracket_node = node_pop();
+        make_exp_node(left_node, bracket_node, "[]");
+    }
+}
+void parse_for_cast()
+{
+    struct datatype* dtype = {};
+    parse_datatype(&dtype);
+    expect_sym(')');
+
+    parse_expressionable(history_begin(0));
+
+    struct node* operand_node = node_pop();
+    make_cast_node(&dtype, operand_node);
+}
 int parse_exp(struct history* history)
 {
     if (S_EQ(token_peek_next()->sval, "("))
@@ -359,6 +395,8 @@ int parse_exp(struct history* history)
 
     }
     else if(S_EQ(token_peek_next()->sval, "?"))
+        parse_for_ternary(history);
+    else if(S_EQ(token_peek_next()->sval, "["))
         parse_for_ternary(history);
     else if(S_EQ(token_peek_next()->sval, ","))
         parse_for_commas(history);
