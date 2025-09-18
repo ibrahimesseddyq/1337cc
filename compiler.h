@@ -104,9 +104,18 @@ typedef char (*LEX_PROCESS_NEXT_CHAR)(struct lex_process* process);
 typedef char (*LEX_PROCESS_PEEK_CHAR)(struct lex_process* process);
 typedef char (*LEX_PROCESS_PUSH_CHAR)(struct lex_process* process, char c);
 
+struct history_cases
+{
+    struct vector* cases;
+    bool has_default_case; 
+};
 struct history
 {
     int flags;
+    struct parser_history_switch
+    {
+        struct history_cases case_data;
+    } _switch;
 };
 struct lex_process_functions
 {
@@ -239,7 +248,11 @@ struct datatype
         size_t size;
     } array;
 };
+struct parsed_switch_case
+{
+    int index;
 
+};
 struct node 
 {
     int type;
@@ -353,6 +366,14 @@ struct node
                 struct node* exp_node;
                 struct node* body_node;
             } do_while_stmt;
+
+            struct switch_stmt
+            {
+                struct node* exp;
+                struct node* body;
+                struct vector* cases;
+                bool has_default_case;
+            } switch_stmt;
         } ;
     };
 
@@ -502,7 +523,7 @@ struct array_brackets* array_brackets_new();
 void make_do_while_node(struct node *body_node, struct node *exp_node);
 struct node* variable_node_or_list(struct node* node);
 void array_brackets_free(struct array_brackets* brackets);
-
+void make_switch_node(struct node* exp_node, struct node* body_node, struct vector* cases, bool has_default_case);
 void array_brackets_add(struct array_brackets* brackets, struct node* bracket_node);
 struct vector* array_brackets_node_vector(struct array_brackets* brackets);
 void make_else_node(struct node* body_node);
