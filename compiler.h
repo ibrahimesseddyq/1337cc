@@ -315,6 +315,17 @@ struct node
 
             size_t stack_size; 
         } func;
+
+        union statement 
+        {
+            struct if_stmt
+            {
+                struct node *cond_node;
+                struct node* body_node;
+
+                struct node* next;
+            } if_stmt;
+        } ;
     };
 
     union 

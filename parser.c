@@ -1080,6 +1080,7 @@ void parser_ignore_int(struct datatype* dtype)
     }
     token_next();
 }
+void parse_if_stmt()
 void parse_keyword(struct history* history)
 {
     struct token* token = token_peek_next();
