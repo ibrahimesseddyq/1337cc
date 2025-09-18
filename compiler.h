@@ -325,6 +325,11 @@ struct node
 
                 struct node* next;
             } if_stmt;
+
+            struct else_stmt
+            {
+                struct node* body_node;
+            } else_stmt;
         } ;
     };
 
@@ -480,7 +485,7 @@ struct vector* array_brackets_node_vector(struct array_brackets* brackets);
 
 size_t array_brackets_calculate_size_from_index(struct datatype* dtype, struct array_brackets* brackets, int index);
 size_t array_brackets_calculate_size(struct datatype* dtype, struct array_brackets* brackets);
-
+void make_if_node(struct node* cond_node, struct node* body_node, struct node* next_node);
 int array_total_indexes(struct datatype* dtype);
 void make_bracket_node(struct node* node);
 bool datatype_is_struct_or_union(struct datatype* dtype);
