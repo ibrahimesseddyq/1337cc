@@ -482,7 +482,7 @@ void array_brackets_free(struct array_brackets* brackets);
 
 void array_brackets_add(struct array_brackets* brackets, struct node* bracket_node);
 struct vector* array_brackets_node_vector(struct array_brackets* brackets);
-
+void make_else_node(struct node* body_node);
 size_t array_brackets_calculate_size_from_index(struct datatype* dtype, struct array_brackets* brackets, int index);
 size_t array_brackets_calculate_size(struct datatype* dtype, struct array_brackets* brackets);
 void make_if_node(struct node* cond_node, struct node* body_node, struct node* next_node);

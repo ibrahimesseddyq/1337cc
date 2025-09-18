@@ -144,6 +144,11 @@ static bool token_next_is_operator(const char* op)
     struct token* token = token_peek_next();
     return token_is_operator(token, op);
 }
+static bool token_next_is_keyword(const char* keyword)
+{
+    struct token* token = token_peek_next();
+    return token_is_keyword(token, keyword);
+}
 static bool token_next_is_symbol(char c)
 {
    struct token* token = token_peek_next();
@@ -1088,6 +1093,7 @@ void parser_ignore_int(struct datatype* dtype)
     }
     token_next();
 }
+void parse_if_stmt(struct history* history);
 struct node* parse_else_or_else_if(struct history* history)
 {
     struct node* node= NULL;
@@ -1097,8 +1103,16 @@ struct node* parse_else_or_else_if(struct history* history)
         token_next();
         if (token_next_is_keyword("if"))
         {
-            
+            parse_if_stmt(history);
+            node = node_pop();
+            return node;
         }
+
+        size_t var_size = 0;
+        parse_body(&var_size, history_down(history, 0));
+        struct node* body_node = node_pop();
+        make_else_nod(body_node);
+        node = node_pop();
     }
     return node;
 }
