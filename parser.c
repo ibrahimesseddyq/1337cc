@@ -13,7 +13,7 @@ void parse_expressionable_root(struct history* history);
 void parse_label(struct history* history);
 struct node* parser_blank_node;
 
-
+void parse_for_ternary(struct history* history);
 void parse_body(size_t* variable_size, struct history* history);
 void parse_keyword(struct history* history);
 struct vector* parse_function_arguments(struct history* history);
@@ -342,6 +342,15 @@ void parse_for_parenthesis(struct history* history)
 
      parser_deal_with_additional_expression();
 }
+void parse_for_commas(struct history* history)
+{
+    token_next();
+
+    struct node* left_node = node_pop();
+    parse_expressionable_root(history);
+    struct node* right_node = node_pop();
+    make_exp_node(left_node, right_node, ",");
+}
 int parse_exp(struct history* history)
 {
     if (S_EQ(token_peek_next()->sval, "("))
@@ -349,7 +358,11 @@ int parse_exp(struct history* history)
         parse_for_parenthesis((history));
 
     }
-    else
+    else if(S_EQ(token_peek_next()->sval, "?"))
+        parse_for_ternary(history);
+    else if(S_EQ(token_peek_next()->sval, ","))
+        parse_for_commas(history);
+    else 
         parse_exp_normal(history);
     return 0;
 }

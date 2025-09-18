@@ -589,7 +589,7 @@ bool node_is_struct_or_union_variable(struct node* node);
 int padding(int val, int to);
 
 int align_value(int val, int to);
-
+void make_ternary_node(struct node* true_node, struct node* false_node);
 int align_value_treat_positive(int val, int to);
 int compute_sum_padding(struct vector* vec);
 void symbolresolver_build_for_node(struct compile_process* process, struct node* node);
