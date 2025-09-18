@@ -60,6 +60,7 @@ void make_exp_node(struct node* left_node, struct node* right_node, const char *
     assert(right_node);
     node_create(&(struct node){.type=NODE_TYPE_EXPRESSION_PARENTHESIS, .exp.left=left_node, .exp.right=right_node, .exp.op=op});
 } 
+void 
 void make_case_node(struct node* exp_node)
 {
     node_create(&(struct node){.type=NODE_TYPE_STATEMENT_CASE, .stmt._case.exp=exp_node});

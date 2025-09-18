@@ -291,6 +291,12 @@ struct node
             struct node*    val;
             int padding;
         } var;
+
+        struct node_ternary 
+        {
+            struct node* true_node;
+            struct node* false_node;
+        } ternary;
         struct varlist 
         {
             struct vector* list;
