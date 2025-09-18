@@ -377,6 +377,10 @@ struct node
                 bool has_default_case;
             } switch_stmt;
 
+            struct _case_stmt
+            {
+                struct node* exp;
+            } _case;
             struct _goto_stmt
             {
                 struct node* label;
@@ -513,6 +517,7 @@ struct node*        node_create(struct node* _node);
 struct node*        node_pop();
 struct node*        node_peek();
 struct node*        node_peek_or_null();
+void make_case_node(struct node* exp_node);
 void                node_push(struct node* node);
 void                node_set_vector(struct vector* vec, struct vector* root_vec);
 void make_return_node(struct node* exp_node);
