@@ -1299,6 +1299,18 @@ void parse_keyword(struct history* history)
         return;
     }
 }
+void parse_continue(struct history* history)
+{
+    expect_keyword("continue");
+    expect_sym(';');
+    make_continue_node();
+}
+void parse_break(struct history* history)
+{
+    expect_keyword("break");
+    expect_sym(';');
+    make_break_node();
+}
 int parse_expressionable_single(struct history* history)
 {
     struct token* token = token_peek_next();

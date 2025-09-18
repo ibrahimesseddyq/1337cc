@@ -560,7 +560,8 @@ size_t datatype_size(struct datatype* dtype);
 size_t variable_size(struct node* var_node);
 void make_struct_node(const char* name, struct node* body_node);
 size_t variable_size_for_list(struct node* var_list_node);
-
+void make_continue_node();
+void make_break_node();
 bool node_is_struct_or_union_variable(struct node* node);
 int padding(int val, int to);
 
