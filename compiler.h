@@ -343,6 +343,16 @@ struct node
                 struct node* body_node;
 
             } for_stmt;
+            struct while_stmt
+            {
+                struct node* exp_node;
+                struct node* body_node;
+            } while_stmt;
+            struct do_while_stmt
+            {
+                struct node* exp_node;
+                struct node* body_node;
+            } do_while_stmt;
         } ;
     };
 
@@ -489,7 +499,7 @@ void parser_ignore_int(struct datatype* dtype);
 void make_for_node(struct node *init_node, struct node *cond_node, struct node *loop_node, struct node *body_node);
 void make_exp_parenthesis_node(struct node* exp_node);
 struct array_brackets* array_brackets_new();
-
+void make_do_while_node(struct node *body_node, struct node *exp_node);
 struct node* variable_node_or_list(struct node* node);
 void array_brackets_free(struct array_brackets* brackets);
 
@@ -521,7 +531,7 @@ void make_body_node(struct vector* body_vec, size_t size, bool padded, struct no
 bool variable_node_is_primitive(struct node* node);
 bool datatype_is_primitive(struct datatype* dtype);
 struct node* variable_node(struct node* node);
-
+void make_while_node(struct node *exp_node, struct node *body_node);
 size_t datatype_size_for_array_access(struct datatype* dtype);
 size_t datatype_element_size(struct datatype* dtype);
 size_t datatype_size_no_ptr(struct datatype* dtype);
