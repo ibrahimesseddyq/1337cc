@@ -666,5 +666,8 @@ bool fixup_resolve(struct fixup* fixup);
 struct node* union_node_for_name(struct compile_process* current_process, const char* name);
 void* fixup__private(struct fixup* fixup);
 bool fixups_resolve(struct fixup_system* system);
+bool node_is_expression(struct node* node, const char*op); 
+bool is_array_node(struct node* node);
+bool is_node_assignement(struct node* node);
 void make_union_node(const char* name, struct node* body_node);
 #endif
