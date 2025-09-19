@@ -1377,4 +1377,12 @@
   */
  bool fixups_resolve(struct fixup_system *system);
  
+
+ //-----------------------------------------------------
+ enum 
+ {
+    CODEGEN_ALL_OK,
+    CODEGEN_GENERAL_ERROR
+ };
+ int codegen(struct compile_process* process);
  #endif
