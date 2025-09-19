@@ -313,6 +313,12 @@ struct node
             struct node* body_n;
             struct node* var;
         } _struct;
+        struct _union 
+        {
+            const char* name;
+            struct node* body_n;
+            struct node* var;
+        } _union;
         struct body 
         {
             struct vector* statements;
@@ -657,7 +663,8 @@ int fixup_sys_unresolved_fixups_count(struct fixup_system* system);
 struct fixup* fixup_register(struct fixup_system* system, struct fixup_config* config);
 
 bool fixup_resolve(struct fixup* fixup);
-
+struct node* union_node_for_name(struct compile_process* current_process, const char* name);
 void* fixup__private(struct fixup* fixup);
 bool fixups_resolve(struct fixup_system* system);
+void make_union_node(const char* name, struct node* body_node);
 #endif

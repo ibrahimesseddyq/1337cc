@@ -102,6 +102,16 @@ void make_body_node(struct vector* body_vec, size_t size, bool padded, struct no
     node_create(&(struct node){.type=NODE_TYPE_BODY, .body.statements=body_vec, .body.size=size, .body.padded=padded, .body.largest_var_node=largest_var_node});
 }
 
+
+void make_union_node(const char* name, struct node* body_node)
+{
+    int flags = 0;
+    if (!body_node)
+    {
+        flags |= NODE_FLAG_IS_FORWARD_DECLARATION;
+    }
+    node_create(&(struct node){.type=NODE_TYPE_UNION, ._union.body_n=body_node, ._union.name=name, .flags=flags});
+}
 void make_struct_node(const char* name, struct node* body_node)
 {
     int flags = 0;
@@ -174,6 +184,18 @@ struct node* struct_node_for_name(struct compile_process* current_process, const
         return NULL;
 
     if(node->type != NODE_TYPE_STRUCT)
+        return NULL;
+
+    return node;
+}
+struct node* union_node_for_name(struct compile_process* current_process, const char* name)
+{
+    struct node* node = node_from_symbol(current_process, name);
+
+    if (!node)
+        return NULL;
+
+    if(node->type != NODE_TYPE_UNION)
         return NULL;
 
     return node;
