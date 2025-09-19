@@ -234,7 +234,6 @@ struct node* variable_node(struct node* node)
             break;
         case NODE_TYPE_UNION:
             var_node = node->_union.var;
-            assert(1 == 0 && "Unions are not yet implemented");
             break;
         
     }
