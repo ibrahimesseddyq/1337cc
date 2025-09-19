@@ -1,5 +1,6 @@
 #include "compiler.h"
 #include <stdlib.h>
+#include <string.h>
 #include "helpers/vector.h"
 
 typedef bool(*FIXUP_FIX)(struct fixup* fixup);
@@ -87,4 +88,46 @@ int fixup_sys_unresolved_fixups_count(struct fixup_system* system)
         fixup = fixup_next(system);
     }
     return c;
+}
+
+struct fixup* fixup_register(struct fixup_system* system, struct fixup_config* config)
+{
+    struct fixup* fixup = calloc(1, sizeof(struct fixup));;
+    memcpy(&fixup->config, config, sizeof(struct fixup_config));
+    fixup->system = system;
+    vector_push(system->fixups, &fixup);
+
+
+}
+
+bool fixup_resolve(struct fixup* fixup)
+{
+    if (fixup_config(fixup)->fix(fixup))
+    {
+        fixup->flags |= FIXUP_FLAG_RESOLVED;
+        return true;
+    }
+    return false;
+}
+
+void* fixup__private(struct fixup* fixup)
+{
+    return fixup_config(fixup)->private;
+}
+
+bool fixups_resolve(struct fixup_system* system)
+{
+    fixup_start_iteration(system);
+    struct fixup* fixup = fixup_next(system);
+    while(fixup)
+    {
+        if(fixup->flags & FIXUP_FLAG_RESOLVED)
+        {
+            continue;
+        }
+        fixup_resolve(fixup);
+        fixup = fixup_next(system);
+
+    }
+    return fixup_sys_unresolved_fixups_count(system) == 0;
 }
