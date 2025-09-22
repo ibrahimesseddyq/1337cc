@@ -1,8 +1,14 @@
 OBJECTS= ./build/compiler.o ./build/cprocess.o ./build/lexer.o ./build/token.o ./build/lex_process.o ./build/parser.o ./build/scope.o ./build/symresolver.o ./build/fixup.o ./build/array.o ./build/datatype.o ./build/node.o ./build/expressionable.o ./build/helper.o ./build/helpers/buffer.o ./build/helpers/vector.o 
 INCLUDES= -I./
 
+TARGET := ccompiler
+
+SANITIZER = #-fsanitize=address
+
 all: ${OBJECTS}
-	gcc main.c ${INCLUDES} ${OBJECTS} -g -o ./main 
+	gcc main.c ${INCLUDES} ${OBJECTS} $(SANITIZER) -g3 -o $(TARGET)
+
+re:	clean all
 
 ./build/compiler.o: ./compiler.c
 	gcc compiler.c ${INCLUDES} -o ./build/compiler.o -g -c
@@ -54,5 +60,5 @@ all: ${OBJECTS}
 	gcc ./helpers/vector.c ${INCLUDES} -o ./build/helpers/vector.o -g -c
 
 clean:
-	rm ./main
+	rm  $(TARGET)
 	rm -rf ${OBJECTS}

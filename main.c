@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "helpers/vector.h"
 #include "compiler.h"
+
+
 int main()
 {
     int res = compile_file("./test.c", "./test", 0);
