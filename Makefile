@@ -1,14 +1,11 @@
-OBJECTS= ./build/compiler.o ./build/cprocess.o ./build/lexer.o ./build/token.o ./build/lex_process.o ./build/parser.o ./build/scope.o ./build/symresolver.o ./build/fixup.o ./build/array.o ./build/datatype.o ./build/node.o ./build/expressionable.o ./build/helper.o ./build/helpers/buffer.o ./build/helpers/vector.o 
+OBJECTS= ./build/compiler.o ./build/cprocess.o ./build/lexer.o ./build/token.o ./build/lex_process.o ./build/parser.o ./build/scope.o ./build/symresolver.o ./build/fixup.o ./build/array.o ./build/datatype.o ./build/node.o ./build/expressionable.o ./build/helper.o ./build/ast_printer.o ./build/helpers/buffer.o ./build/helpers/vector.o
+
 INCLUDES= -I./
 
-TARGET := ccompiler
-
-SANITIZER = #-fsanitize=address
+TARGET = ./main
 
 all: ${OBJECTS}
-	gcc main.c ${INCLUDES} ${OBJECTS} $(SANITIZER) -g3 -o $(TARGET)
-
-re:	clean all
+	gcc main.c ${INCLUDES} ${OBJECTS} -g -o $(TARGET)
 
 ./build/compiler.o: ./compiler.c
 	gcc compiler.c ${INCLUDES} -o ./build/compiler.o -g -c
@@ -52,6 +49,9 @@ re:	clean all
 ./build/datatype.o: ./datatype.c
 	gcc datatype.c ${INCLUDES} -o ./build/datatype.o -g -c
 
+./build/ast_printer.o: ./ast_printer.c
+	gcc ast_printer.c ${INCLUDES} -o ./build/ast_printer.o -g -c
+
 ./build/helpers/buffer.o: ./helpers/buffer.c
 	gcc ./helpers/buffer.c ${INCLUDES} -o ./build/helpers/buffer.o -g -c
 
@@ -59,6 +59,10 @@ re:	clean all
 ./build/helpers/vector.o: ./helpers/vector.c
 	gcc ./helpers/vector.c ${INCLUDES} -o ./build/helpers/vector.o -g -c
 
+re: fclean all
+
 clean:
-	rm  $(TARGET)
 	rm -rf ${OBJECTS}
+
+fclean: clean
+	rm -fr $(TARGET)

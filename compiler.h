@@ -695,6 +695,9 @@
  void compiler_error(struct compile_process *compiler, const char *msg, ...);
  void compiler_warning(struct compile_process *compiler, const char *msg, ...);
  
+ // AST visualization functions
+ void print_ast_tree(struct compile_process *process);
+ 
  // ============================================================================
  // LEXICAL ANALYSIS FUNCTIONS
  // ============================================================================

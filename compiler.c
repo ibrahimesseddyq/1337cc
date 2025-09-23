@@ -106,6 +106,9 @@ int compile_file(const char* filename, const char* out_filename, int flags)
         return COMPILER_FAILED_WITH_ERRORS;
     }
     
+    // Print the AST tree for debugging
+    print_ast_tree(process);
+    
     // Perform code generation (not yet implemented)
 
     return COMPILER_FILE_COMPILED_OK;
