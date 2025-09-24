@@ -2777,6 +2777,7 @@ parse_struct(dtype);
      }
  
      assert(fixups_resolve(parser_fixup_sys));
+     scope_free_root(process);
      return PARSE_ALL_OK;
  }
  
