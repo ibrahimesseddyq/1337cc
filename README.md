@@ -13,6 +13,7 @@ The pipeline is classical: source text → tokens → AST → LLVM IR → object
 3. [Usage](#usage)
 4. [Testing](#testing)
 5. [Contributing](#contributing)
+6. [AI Usage](#ai-usage)
 
 ---
 
@@ -227,3 +228,11 @@ make test   # all 55 tests should pass before you start
 - Keep commits focused — one logical change per commit.
 - Run `make test` before opening a pull request.
 - The PR description should explain *why* the change is needed, not just what it does.
+
+---
+
+## AI Usage
+
+AI was used during the development of this project — specifically to assist with the refactor from C to C++17 and the migration from hand-written x86 assembly output to the LLVM IR backend.
+
+AI-assisted contributions are welcome. That said, every change must be carefully reviewed by the author before submission. Any change that does not meet the project's quality standards — correct behaviour, clean architecture, passing tests — will not be accepted regardless of how it was written. The bar is the same whether the code comes from a human or a model.
