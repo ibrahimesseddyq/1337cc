@@ -48,25 +48,13 @@ for c_file in "$TESTS_DIR"/$PATTERN; do
         continue
     fi
 
-    ll_file="$TMP_DIR/${base}.ll"
     bin_file="$TMP_DIR/${base}"
     actual_file="$TMP_DIR/${base}.actual"
 
-    # Step 1: compile C → LLVM IR
-    if ! "$COMPILER" "$c_file" "$ll_file" 2>"$TMP_DIR/${base}.compile_err"; then
+    # Step 1: compile C → native binary
+    if ! "$COMPILER" "$c_file" -o "$bin_file" 2>"$TMP_DIR/${base}.compile_err"; then
         echo -e "${RED}FAIL${RESET}  $base  (compiler error)"
         cat "$TMP_DIR/${base}.compile_err" >&2
-        FAIL=$((FAIL + 1))
-        continue
-    fi
-
-    # Step 2: link LLVM IR → native binary (llc → .o, then gcc links)
-    s_file="$TMP_DIR/${base}.s"
-    o_file="$TMP_DIR/${base}.o"
-    if ! llc --relocation-model=pic "$ll_file" -o "$s_file" 2>"$TMP_DIR/${base}.link_err" ||
-       ! gcc "$s_file" -o "$bin_file" 2>>"$TMP_DIR/${base}.link_err"; then
-        echo -e "${RED}FAIL${RESET}  $base  (link error)"
-        cat "$TMP_DIR/${base}.link_err" >&2
         FAIL=$((FAIL + 1))
         continue
     fi
