@@ -15,7 +15,11 @@ SRCS = cpp/main.cpp cpp/compiler.cpp cpp/cprocess.cpp cpp/token.cpp \
        cpp/lex_process.cpp cpp/lexer.cpp \
        cpp/node.cpp cpp/scope.cpp cpp/symresolver.cpp cpp/datatype.cpp \
        cpp/array.cpp cpp/helper.cpp cpp/fixup.cpp cpp/expressionable.cpp \
-       cpp/codegen.cpp cpp/parser.cpp \
+       cpp/parser.cpp cpp/parser_core.cpp cpp/parser_operators.cpp \
+       cpp/parser_expr.cpp cpp/parser_types.cpp cpp/parser_decl.cpp \
+       cpp/parser_body.cpp cpp/parser_stmt.cpp \
+       cpp/codegen.cpp cpp/codegen_core.cpp cpp/codegen_toplevel.cpp \
+       cpp/codegen_stmt.cpp cpp/codegen_expr.cpp \
        cpp/helpers/vector.cpp cpp/helpers/buffer.cpp
 
 OBJS = $(patsubst %.cpp, ./build/%.o, $(SRCS))
