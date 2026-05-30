@@ -1,6 +1,6 @@
 # 1337cc
 
-A hand-written C compiler in C++17 that produces native binaries via an LLVM IR backend.
+A C compiler in C++17 that produces native binaries via an LLVM IR backend.
 
 The pipeline is classical: source text → tokens → AST → LLVM IR → object code → executable. Every stage is implemented from scratch except the final assembly/linking step, which delegates to `llc` and `gcc`.
 
