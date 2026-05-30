@@ -284,7 +284,21 @@ struct token *Lexer::token_make_string(char start_delim, char end_delim)
     for (; c != end_delim && c != EOF; c = nextc())
     {
         if (c == '\\')
+        {
+            char esc = nextc();
+            switch (esc)
+            {
+            case 'n':  buffer_write(buf, '\n'); break;
+            case 't':  buffer_write(buf, '\t'); break;
+            case 'r':  buffer_write(buf, '\r'); break;
+            case '0':  buffer_write(buf, '\0'); break;
+            case '\\': buffer_write(buf, '\\'); break;
+            case '"':  buffer_write(buf, '"');  break;
+            case '\'': buffer_write(buf, '\''); break;
+            default:   buffer_write(buf, esc);  break;
+            }
             continue;
+        }
         buffer_write(buf, c);
     }
     buffer_write(buf, 0x00);

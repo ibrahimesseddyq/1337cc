@@ -1,7 +1,0 @@
-section .data
-; int x
-x: dd 0
-; int y
-y: dd 0
-section .text
-section .rodata

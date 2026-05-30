@@ -408,6 +408,7 @@ private:
     bool          parse_for_loop_part_loop(History h);
     void          parse_switch(History h);
     void          parse_case(History h);
+    void          parse_default(History h);
     void          parse_keyword_with_parens_expr(const char *keyword);
 
     // -----------------------------------------------------------------------
@@ -873,6 +874,7 @@ int Parser::parse_expressionable_single(History h)
     switch (tok->type)
     {
     case TOKEN_TYPE_NUMBER:
+    case TOKEN_TYPE_STRING:
         parse_single_token_to_node();
         return 0;
 
@@ -909,8 +911,9 @@ void Parser::parse_single_token_to_node()
     case TOKEN_TYPE_NUMBER:
     {
         struct node tmp{};
-        tmp.type  = NODE_TYPE_NUMBER;
-        tmp.llnum = tok->llnum;
+        tmp.type     = NODE_TYPE_NUMBER;
+        tmp.llnum    = tok->llnum;
+        tmp.num.type = tok->num.type;
         n = node_create(&tmp);
         break;
     }
@@ -1477,7 +1480,8 @@ void Parser::init_datatype(struct token *primary, struct token *secondary,
         compiler_error(m_process, "Unsupported datatype expectation\n");
     }
 
-    out->type_str = primary->sval;
+    out->type_str      = primary->sval;
+    out->pointer_depth = pointer_depth;
 
     // "long long" is not natively supported; warn and clamp to 32 bits.
     if (S_EQ(primary->sval, "long") &&
@@ -2744,7 +2748,7 @@ void Parser::parse_case(History h)
             "Only numeric constants are supported in case labels\n");
     }
 
-    struct node *case_node = node_pop();
+    struct node *case_node = node_peek();
 
     // Register the case in the enclosing switch's case vector.
     if (m_switch_cases_ptr && *m_switch_cases_ptr)
@@ -2753,6 +2757,7 @@ void Parser::parse_case(History h)
         sc.index = static_cast<int>(case_node->stmt._case.exp->llnum);
         vector_push(*m_switch_cases_ptr, &sc);
     }
+    // Leave the case node on the stack for parse_body to collect.
 }
 
 // Parses a switch statement: switch ( expr ) body.
@@ -2834,6 +2839,16 @@ void Parser::parse_break(History h)
     make_break_node();
 }
 
+// Parses a default label: default :
+// Consumes "default" and ':', then calls make_default_node to push the node.
+void Parser::parse_default(History h)
+{
+    (void)h;
+    expect_keyword("default");
+    expect_sym(':');
+    make_default_node();
+}
+
 // Parses a goto statement: goto <identifier> ;
 // Consumes "goto", parses the target label as an identifier node, consumes
 // ';', pops the identifier node, and calls make_goto_node to push the node.
@@ -2880,6 +2895,7 @@ void Parser::parse_keyword(History h)
     else if (S_EQ(tok->sval, "switch"))   { parse_switch(h);  return; }
     else if (S_EQ(tok->sval, "goto"))     { parse_goto(h);    return; }
     else if (S_EQ(tok->sval, "case"))     { parse_case(h);    return; }
+    else if (S_EQ(tok->sval, "default"))  { parse_default(h); return; }
 
     compiler_error(m_process, "Unknown or unsupported keyword\n");
 }

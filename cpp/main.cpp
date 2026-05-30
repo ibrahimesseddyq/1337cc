@@ -1,28 +1,59 @@
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "helpers/vector.hpp"
 #include "compiler.hpp"
 
-// Program entry point.  Invokes the full compilation pipeline on the
-// hard-coded source file "./test.c" and writes the output to "./test".
-// Prints a human-readable status message to stdout depending on whether
-// compilation succeeded, failed, or returned an unexpected result code.
+// Program entry point.
 //
-// Returns 0 in all cases (the exit code does not currently reflect
-// compilation success or failure).
-int main()
+// Usage: 1337cc <input.c> [output.ll]
+//
+// Compiles the given C source file and writes LLVM IR to the output path.
+// If no output path is provided, the output file name is derived from the
+// input path by replacing its extension with ".ll".
+//
+// Exit codes:
+//   0  — compilation succeeded
+//   1  — compilation failed or wrong usage
+int main(int argc, char **argv)
 {
-    int res = compile_file("./test.c", "./test", 0);
+    if (argc < 2)
+    {
+        fprintf(stderr, "Usage: %s <input.c> [output.ll]\n", argv[0]);
+        return 1;
+    }
+
+    const char *input_path  = argv[1];
+    const char *output_path = (argc >= 3) ? argv[2] : nullptr;
+
+    // Derive output path from input if not supplied.
+    char derived_out[4096];
+    if (!output_path)
+    {
+        // Replace extension with .ll, or append .ll if no extension found.
+        strncpy(derived_out, input_path, sizeof(derived_out) - 4);
+        derived_out[sizeof(derived_out) - 1] = '\0';
+        char *dot = strrchr(derived_out, '.');
+        if (dot)
+            strcpy(dot, ".ll");
+        else
+            strcat(derived_out, ".ll");
+        output_path = derived_out;
+    }
+
+    int res = compile_file(input_path, output_path, 0);
     if (res == COMPILER_FILE_COMPILED_OK)
     {
-        printf("everything compiled fine\n");
+        return 0;
     }
     else if (res == COMPILER_FAILED_WITH_ERRORS)
     {
-        printf("Compile failed\n");
+        fprintf(stderr, "Compilation failed: %s\n", input_path);
+        return 1;
     }
     else
     {
-        printf("Unknown response for compile time\n");
+        fprintf(stderr, "Unknown compiler result: %d\n", res);
+        return 1;
     }
-    return 0;
 }

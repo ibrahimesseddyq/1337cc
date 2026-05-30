@@ -319,151 +319,169 @@ struct node
         struct node *function;
     } binded;
 
-    union
+    // Nested types extracted from the union so the anonymous union only
+    // contains data members (C++ anonymous-union restriction).
+    // Types whose name would match a member name get a _t suffix to avoid
+    // the C++17 "changes meaning" error.
+    struct exp_t
     {
-        struct exp
-        {
-            struct node *left;
-            struct node *right;
-            const char *op;
-        } exp;
+        struct node *left;
+        struct node *right;
+        const char *op;
+    };
 
-        struct parenthesis
+    struct parenthesis_t
+    {
+        struct node *exp;
+    };
+
+    struct var_t
+    {
+        struct datatype type;
+        int padding;
+        int aoffset;
+        const char *name;
+        struct node *val;
+    };
+
+    struct node_tenary
+    {
+        struct node *true_node;
+        struct node *false_node;
+    };
+
+    struct varlist
+    {
+        struct vector *list;
+    };
+
+    struct bracket_t
+    {
+        struct node *inner;
+    };
+
+    struct _struct_t
+    {
+        const char *name;
+        struct node *body_n;
+        struct node *var;
+    };
+
+    struct _union_t
+    {
+        const char *name;
+        struct node *body_n;
+        struct node *var;
+    };
+
+    struct body_t
+    {
+        struct vector *statements;
+        size_t size;
+        bool padded;
+        struct node *largest_var_node;
+    };
+
+    struct function
+    {
+        int flags;
+        struct datatype rtype;
+        const char *name;
+
+        struct function_arguments
+        {
+            struct vector *vector;
+            size_t stack_addition;
+        } args;
+
+        struct node *body_n;
+        size_t stack_size;
+    };
+
+    struct statement
+    {
+        struct return_stmt
         {
             struct node *exp;
-        } parenthesis;
+        } return_stmt;
 
-        struct var
+        struct if_stmt
         {
-            struct datatype type;
-            int padding;
-            int aoffset;
-            const char *name;
-            struct node *val;
-        } var;
+            struct node *cond_node;
+            struct node *body_node;
+            struct node *next;
+        } if_stmt;
 
-        struct node_tenary
+        struct else_stmt
         {
-            struct node *true_node;
-            struct node *false_node;
-        } tenary;
+            struct node *body_node;
+        } else_stmt;
 
-        struct varlist
+        struct for_stmt
         {
-            struct vector *list;
-        } var_list;
+            struct node *init_node;
+            struct node *cond_node;
+            struct node *loop_node;
+            struct node *body_node;
+        } for_stmt;
 
-        struct bracket
+        struct while_stmt
         {
-            struct node *inner;
-        } bracket;
+            struct node *exp_node;
+            struct node *body_node;
+        } while_stmt;
 
-        struct _struct
+        struct do_while_stmt
         {
-            const char *name;
-            struct node *body_n;
-            struct node *var;
-        } _struct;
+            struct node *exp_node;
+            struct node *body_node;
+        } do_while_stmt;
 
-        struct _union
+        struct switch_stmt
         {
-            const char *name;
-            struct node *body_n;
-            struct node *var;
-        } _union;
+            struct node *exp;
+            struct node *body;
+            struct vector *cases;
+            bool has_default_case;
+        } switch_stmt;
 
-        struct body
+        struct _case_stmt
         {
-            struct vector *statements;
-            size_t size;
-            bool padded;
-            struct node *largest_var_node;
-        } body;
+            struct node *exp;
+        } _case;
 
-        struct function
+        struct _goto_stmt
         {
-            int flags;
-            struct datatype rtype;
-            const char *name;
+            struct node *label;
+        } _goto;
+    };
 
-            struct function_arguments
-            {
-                struct vector *vector;
-                size_t stack_addition;
-            } args;
+    struct node_label
+    {
+        struct node *name;
+    };
 
-            struct node *body_n;
-            size_t stack_size;
-        } func;
+    struct cast_t
+    {
+        struct datatype dtype;
+        struct node *operand;
+    };
 
-        struct statement
-        {
-            struct return_stmt
-            {
-                struct node *exp;
-            } return_stmt;
-
-            struct if_stmt
-            {
-                struct node *cond_node;
-                struct node *body_node;
-                struct node *next;
-            } if_stmt;
-
-            struct else_stmt
-            {
-                struct node *body_node;
-            } else_stmt;
-
-            struct for_stmt
-            {
-                struct node *init_node;
-                struct node *cond_node;
-                struct node *loop_node;
-                struct node *body_node;
-            } for_stmt;
-
-            struct while_stmt
-            {
-                struct node *exp_node;
-                struct node *body_node;
-            } while_stmt;
-
-            struct do_while_stmt
-            {
-                struct node *exp_node;
-                struct node *body_node;
-            } do_while_stmt;
-
-            struct switch_stmt
-            {
-                struct node *exp;
-                struct node *body;
-                struct vector *cases;
-                bool has_default_case;
-            } switch_stmt;
-
-            struct _case_stmt
-            {
-                struct node *exp;
-            } _case;
-
-            struct _goto_stmt
-            {
-                struct node *label;
-            } _goto;
-        } stmt;
-
-        struct node_label
-        {
-            struct node *name;
-        } label;
-
-        struct cast
-        {
-            struct datatype dtype;
-            struct node *operand;
-        } cast;
+    union
+    {
+        exp_t exp;
+        parenthesis_t parenthesis;
+        var_t var;
+        node_tenary tenary;
+        varlist var_list;
+        bracket_t bracket;
+        _struct_t _struct;
+        _union_t _union;
+        body_t body;
+        function func;
+        statement stmt;
+        node_label label;
+        cast_t cast;
     };
 
     union
@@ -474,6 +492,11 @@ struct node
         unsigned long lnum;
         unsigned long long llnum;
     };
+
+    struct node_number
+    {
+        int type;
+    } num;
 };
 
 // ============================================================================
@@ -591,6 +614,7 @@ struct node *union_node_for_name(struct compile_process *current_process, const 
 
 void make_tenary_node(struct node *true_node, struct node *false_node);
 void make_case_node(struct node *exp_node);
+void make_default_node();
 void make_goto_node(struct node *label_node);
 void make_label_node(struct node *name_node);
 void make_continue_node();

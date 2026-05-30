@@ -156,6 +156,13 @@ void make_case_node(struct node *exp_node)
     node_create(&n);
 }
 
+void make_default_node()
+{
+    struct node n{};
+    n.type = NODE_TYPE_STATEMENT_DEFAULT;
+    node_create(&n);
+}
+
 // Creates a goto statement node and pushes it onto the node stack.
 // label_node - the identifier node naming the target label.
 // Pushes a NODE_TYPE_STATEMENT_GOTO node.
